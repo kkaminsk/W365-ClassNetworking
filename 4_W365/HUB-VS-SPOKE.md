@@ -83,13 +83,13 @@ cd Hub
 ### Step 2: Deploy W365 Spoke
 
 ```powershell
-cd W365
+cd 4_W365
 .\deploy.ps1
 ```
 
 ### Step 3: Configure Peering (Spoke to Hub)
 
-Update `W365/infra/envs/prod/parameters.prod.json`:
+Update `4_W365/infra/envs/prod/parameters.prod.json`:
 
 ```json
 {

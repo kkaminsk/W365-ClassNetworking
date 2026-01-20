@@ -10,7 +10,7 @@
     Use this as a safety mechanism to prevent runaway resource creation across the entire subscription.
     
     IMPORTANT: This does NOT provide per-student limits. Use the per-student script validation
-    in Deploy-W365CustomImage.ps1 and W365/deploy.ps1 for per-student enforcement.
+    in 4_W365/deploy.ps1 for per-student enforcement.
     
     Subscription-Wide Limits Recommended for 30 Students:
     - Total VMs: 35 (30 students + 5 buffer for instructors/testing)
@@ -477,8 +477,7 @@ try {
     Write-LogMessage "  • Public IPs: 40 (temporary for builds)" -Level Info
     Write-LogMessage "`nNOTE: These are subscription-wide limits in region $Region" -Level Warning
     Write-LogMessage "For per-student enforcement, use script validation in:" -Level Info
-    Write-LogMessage "  • Deploy-W365CustomImage.ps1 (max 1 VM per student)" -Level Info
-    Write-LogMessage "  • W365/deploy.ps1 (max 1 VNet per student)" -Level Info
+    Write-LogMessage "  • 4_W365/deploy.ps1 (max 1 VNet per student)" -Level Info
     
 }
 catch {

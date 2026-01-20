@@ -96,7 +96,7 @@ Scope: /subscriptions/{subscription-id}
 
 ```powershell
 # Navigate to W365 folder
-cd W365
+cd 4_W365
 
 # Step 1: Validate for student 1
 .\deploy.ps1 -Validate -StudentNumber 1

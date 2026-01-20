@@ -26,8 +26,7 @@ The **best solution** is to add resource count validation **directly into the de
 
 | Script | Quota Validation | Status |
 |--------|------------------|--------|
-| `Deploy-W365CustomImage.ps1` | Max 1 VM in RG | ✅ **IMPLEMENTED** |
-| `W365/deploy.ps1` | Max 1 VNet in RG | ✅ **IMPLEMENTED** |
+| `4_W365/deploy.ps1` | Max 1 VNet in RG | ✅ **IMPLEMENTED** |
 
 ---
 
@@ -90,7 +89,7 @@ if ($isStudentMode) {
 }
 ```
 
-#### For `W365/deploy.ps1`:
+#### For `4_W365/deploy.ps1`:
 
 ```powershell
 # Add to Test-Deployment function or after context establishment
@@ -300,8 +299,7 @@ Based on Azure's limitations, here's the recommended approach:
 ### 1. **Add Quota Validation to Scripts** (Immediate enforcement)
 
 Modify these scripts with the code examples above:
-- ✅ `CustomImage/Deploy-W365CustomImage.ps1` - Check VM count before deployment
-- ✅ `W365/deploy.ps1` - Check VNet count before deployment
+- ✅ `4_W365/deploy.ps1` - Check VNet count before deployment
 
 **Benefits**:
 - Immediate feedback to students
@@ -392,8 +390,7 @@ Clearly communicate the limits to students in lab instructions:
 ## 🚀 Next Steps
 
 ### Phase 1: Per-Student Enforcement ✅ **COMPLETE**
-1. ✅ **`Deploy-W365CustomImage.ps1`** - VM count validation implemented
-2. ✅ **`W365/deploy.ps1`** - VNet count validation implemented
+1. ✅ **`4_W365/deploy.ps1`** - VNet count validation implemented
 3. ✅ **`STUDENT-DEPLOYMENT-GUIDE.md`** - Quota documentation added
 4. ⏭️ **Test with students** to ensure clear error messages
 

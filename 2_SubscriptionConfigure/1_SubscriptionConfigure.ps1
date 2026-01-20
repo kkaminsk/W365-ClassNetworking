@@ -73,8 +73,7 @@
     
     Prerequisites:
     - Target subscription must exist with Owner/UAA access
-    - CustomImage/CustomImage-MinimumRole.json must exist
-    - W365/W365-MinimumRole.json must exist
+    - 4_W365/W365-MinimumRole.json must exist
     
     Guest Account Tip:
     - For faster execution, pre-authenticate with: Connect-AzAccount -SkipContextPopulation
@@ -1143,11 +1142,8 @@ Write-Host "`n📋 Next Steps:" -ForegroundColor Cyan
 Write-Host "  1. Have both admin accounts sign in and change temporary passwords:" -ForegroundColor White
 Write-Host "     - Admin:      $AdminUPN" -ForegroundColor Gray
 Write-Host "     - Backdoor:   $BdoorUPN" -ForegroundColor Gray
-Write-Host "  2. Deploy Custom Image infrastructure:" -ForegroundColor White
-Write-Host "     cd CustomImage" -ForegroundColor Gray
-Write-Host "     .\Deploy-W365CustomImage.ps1 -TenantId $($selectedTenant.Id)" -ForegroundColor Gray
-Write-Host "  3. Deploy W365 spoke network:" -ForegroundColor White
-Write-Host "     cd W365" -ForegroundColor Gray
+Write-Host "  2. Deploy W365 spoke network:" -ForegroundColor White
+Write-Host "     cd 4_W365" -ForegroundColor Gray
 Write-Host "     .\deploy.ps1 -TenantId $($selectedTenant.Id)" -ForegroundColor Gray
 
 Write-Host "`n✓ Administrator can now deploy Windows 365 solutions" -ForegroundColor Green

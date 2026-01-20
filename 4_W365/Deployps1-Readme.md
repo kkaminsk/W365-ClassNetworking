@@ -126,7 +126,7 @@ Scope: /subscriptions/{subscription-id}
 
 Deploy the Windows 365 spoke network for student 1:
 ```powershell
-cd W365
+cd 4_W365
 .\deploy.ps1 -StudentNumber 1
 ```
 

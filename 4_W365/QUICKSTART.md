@@ -27,8 +27,8 @@ Get-AzContext
 ## Validate & Deploy
 
 ```powershell
-# Navigate to W365 folder
-cd W365
+# Navigate to 4_W365 folder (from repo root)
+cd 4_W365
 
 # Step 1: Validate for student 1 (always run first!)
 .\deploy.ps1 -Validate -StudentNumber 1

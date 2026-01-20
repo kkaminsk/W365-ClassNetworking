@@ -271,21 +271,15 @@ Set budget alerts at subscription level with filtering by `Student` tag.
 
 After configuring students:
 
-1. **Deploy Custom Images** (per student):
+1. **Deploy Spoke Networks** (per student):
    ```powershell
-   cd ../CustomImage
-   .\Deploy-W365CustomImage.ps1 -StudentNumber 5
-   ```
-
-2. **Deploy Spoke Networks** (per student):
-   ```powershell
-   cd ../W365
+   cd ../4_W365
    .\deploy.ps1 -StudentNumber 5
    ```
 
-3. **Provision Cloud PCs** (via Intune):
+2. **Provision Cloud PCs** (via Intune):
    - Assign students to provisioning policies
-   - Use student-specific custom images
+   - Use gallery or custom images as needed
 
 ---
 

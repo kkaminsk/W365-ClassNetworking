@@ -142,47 +142,22 @@ Get-AzRoleAssignment -ResourceGroupName "rg-st5-customimage" | Where-Object {$_.
 
 ---
 
-### Step 2: Deploy Custom Image (30-60 minutes)
+### Step 2: Custom Image (Optional)
 
-**Option A: Instructor Deploys (Recommended for First Image)**
+> **Note**: Custom image deployment scripts are not yet implemented in this repository.
+> For now, use the **Microsoft-provided gallery images** in Windows 365 provisioning policies,
+> or manually create custom images through the Azure portal.
 
-```powershell
-cd CustomImage
+**Manual Custom Image Process** (if needed):
+1. Create a Windows 11 VM in `rg-st{N}-customimage`
+2. Install required applications
+3. Run sysprep and generalize
+4. Capture as managed image
+5. Reference in Windows 365 provisioning policy
 
-# Deploy custom image for Student 5
-.\Deploy-W365CustomImage.ps1 -StudentNumber 5
-```
-
-**Option B: Student Deploys (Learning Exercise)**
-
-Student logs in with their account (W365Student5@domain.com) and runs:
-
-```powershell
-cd CustomImage
-.\Deploy-W365CustomImage.ps1 -StudentNumber 5
-```
-
-**What this does**:
-1. Deploys build infrastructure in `rg-st5-customimage`
-2. Creates VNet `vnet-st5-imagebuild` (temporary)
-3. Deploys Windows 11 25H2 Enterprise VM
-4. Installs applications (VSCode, Chrome, 7-Zip, Adobe Reader)
-5. Runs Windows Updates
-6. Executes sysprep
-7. Captures managed image: `st5-custom-image-{timestamp}`
-8. Cleans up temporary resources
-9. Creates gallery: `st5gallery`
-
-**Deployment Time**: 30-60 minutes (fully automated)
-
-**Validation**:
-```powershell
-# Check managed images
-Get-AzImage -ResourceGroupName "rg-st5-customimage" | Select-Object Name, ProvisioningState, HyperVGeneration
-
-# View deployment log
-Get-Content "$env:USERPROFILE\Documents\W365Customimage-*.log" | Select-Object -Last 50
-```
+**Using Gallery Images** (recommended for initial setup):
+- Skip this step and use Windows 11 Enterprise gallery images in Step 4
+- Gallery images include Windows 11 with standard configurations
 
 ---
 
@@ -191,7 +166,7 @@ Get-Content "$env:USERPROFILE\Documents\W365Customimage-*.log" | Select-Object -
 Deploy the student's Windows 365 spoke network with automatic hub peering:
 
 ```powershell
-cd W365
+cd 4_W365
 
 # Get hub VNet resource ID
 $hubVnetId = (Get-AzVirtualNetwork -ResourceGroupName "rg-hub-net" -Name "vnet-hub").Id
@@ -307,40 +282,38 @@ For initial lab setup, provision all students at once:
 cd 2_SubscriptionConfigure
 .\Configure-StudentRBAC.ps1 -ConfigureAllStudents -TotalStudents 30
 
-# Step 2: Deploy custom images (can be done in parallel or sequentially)
-cd CustomImage
-1..30 | ForEach-Object {
-    Write-Host "Deploying custom image for Student $_" -ForegroundColor Cyan
-    .\Deploy-W365CustomImage.ps1 -StudentNumber $_
-}
-
-# Step 3: Deploy spoke networks for all students
-cd W365
+# Step 2: Deploy spoke networks for all students
+cd 4_W365
 $hubVnetId = (Get-AzVirtualNetwork -ResourceGroupName "rg-hub-net" -Name "vnet-hub").Id
 1..30 | ForEach-Object {
     Write-Host "Deploying spoke for Student $_" -ForegroundColor Cyan
     .\deploy.ps1 -StudentNumber $_ -HubVnetResourceId $hubVnetId
 }
+
+# Step 3: Create student accounts (uses Microsoft Graph)
+cd 3_Student-Deploy
+.\New-W365Students.ps1
 ```
 
 **Total Time**:
 - Resource Groups: ~5 minutes
-- Custom Images: ~30-60 minutes per student (can run 3-5 in parallel)
 - Spoke Networks: ~10 minutes per student (can run in parallel)
+- Student Accounts: ~5 minutes
 
 ### Parallel Deployment
 
-To speed up deployment, run multiple students in parallel using PowerShell jobs:
+To speed up spoke network deployment, run multiple students in parallel using PowerShell jobs:
 
 ```powershell
-# Deploy custom images for students 1-5 in parallel
-cd CustomImage
+# Deploy spoke networks for students 1-5 in parallel
+cd 4_W365
+$hubVnetId = (Get-AzVirtualNetwork -ResourceGroupName "rg-hub-net" -Name "vnet-hub").Id
 $students = 1..5
 $jobs = $students | ForEach-Object {
     Start-Job -ScriptBlock {
-        param($StudentNum)
-        & ".\Deploy-W365CustomImage.ps1" -StudentNumber $StudentNum
-    } -ArgumentList $_
+        param($StudentNum, $HubId)
+        & ".\deploy.ps1" -StudentNumber $StudentNum -HubVnetResourceId $HubId
+    } -ArgumentList $_, $hubVnetId
 }
 
 # Wait for all jobs to complete
@@ -378,8 +351,8 @@ New-AzureADUser -DisplayName "Windows 365 Student 5" -UserPrincipalName "W365Stu
 1. Verify image and network are in same region
 2. Check Windows 365 service principal permissions:
    ```powershell
-   cd CustomImage
-   .\check-W365permissions.ps1
+   cd 4_W365
+   .\Check-W365Permissions.ps1
    ```
 
 ### Issue: "Network connection health check failed"
@@ -443,11 +416,12 @@ This is expected behavior - quotas limit students to 1 VNet. Student should:
 
 ## 📚 Additional Resources
 
-- **Multi-Student Setup**: `../2_SubscriptionConfigure/README-MultiStudent.md`
-- **Resource Quotas Guide**: `../2_SubscriptionConfigure/RESOURCE-QUOTAS-GUIDE.md`
-- **Custom Image Guide**: `../CustomImage/README.md`
-- **W365 Spoke Network**: `../W365/README.md`
-- **OpenSpec Design**: `../openspec/changes/multi-student-single-subscription/design.md`
+- **Multi-Student Setup**: `2_SubscriptionConfigure/README-MultiStudent.md`
+- **Resource Quotas Guide**: `2_SubscriptionConfigure/RESOURCE-QUOTAS-GUIDE.md`
+- **W365 Spoke Network**: `4_W365/README.md`
+- **W365 Permissions**: `4_W365/PERMISSIONS-AND-RESTRICTIONS.md`
+- **Hub Deployment**: `1_Hub/QUICKSTART.md`
+- **Student Account Creation**: `3_Student-Deploy/CreateStudentsandW365.md`
 
 ---
 
@@ -463,7 +437,7 @@ Use this checklist for each student:
 
 ### Student Deployment
 - [ ] Step 1: Resource groups and RBAC configured
-- [ ] Step 2: Custom image deployed
+- [ ] Step 2: Custom image created (optional - can use gallery images)
 - [ ] Step 3: Spoke network deployed with hub peering
 - [ ] Step 4: Azure Network Connection created and healthy
 - [ ] Step 5: Provisioning policy created and assigned

@@ -154,8 +154,7 @@ Install-Module -Name Microsoft.Graph.Users, Microsoft.Graph.Identity.DirectoryMa
 - **Entra ID**: Global Administrator or Privileged Role Administrator
 
 ### Required Files
-- `../CustomImage/CustomImage-MinimumRole.json` - Custom role definition for image building
-- `../W365/W365-MinimumRole.json` - Custom role definition for spoke network deployment
+- `../4_W365/W365-MinimumRole.json` - Custom role definition for spoke network deployment
 
 ## Usage
 
@@ -357,11 +356,8 @@ CSV file: C:\...\SubscriptionConfigure\SubscriptionConfigure.csv
   1. Have both admin accounts sign in and change temporary passwords:
      - Admin:      admin@bighatgrouptraining.ca
      - Backdoor:   bdoor@bighatgrouptraining.ca
-  2. Deploy Custom Image infrastructure:
-     cd CustomImage
-     .\Deploy-W365CustomImage.ps1 -TenantId <tenant-id>
-  3. Deploy W365 spoke network:
-     cd W365
+  2. Deploy W365 spoke network:
+     cd 4_W365
      .\deploy.ps1 -TenantId <tenant-id>
 
 📄 Files created in Documents folder:
@@ -858,8 +854,8 @@ All files are saved to your **Documents folder**:
 ## Related Documentation
 
 - [Student-Deploy/CreateStudentsandW365.md](../3_Student-Deploy/CreateStudentsandW365.md) - Complete lab setup workflow
-- [CustomImage/README.md](../CustomImage/README.md) - Custom Image deployment
-- [W365/README.md](../W365/README.md) - Spoke network deployment
+- [4_W365/README.md](../4_W365/README.md) - Spoke network deployment
+- [4_W365/PERMISSIONS-AND-RESTRICTIONS.md](../4_W365/PERMISSIONS-AND-RESTRICTIONS.md) - Security and permissions guide
 
 ## Change History
 

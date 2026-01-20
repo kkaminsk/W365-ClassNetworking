@@ -15,26 +15,56 @@ Non‑Bicep tenant tasks (Entra/M365) are noted in `plan.md` and should be autom
 ## Repository Structure
 
 ```
-infra/
-  modules/
-    rg/                     # Resource groups (sub scope)
-    hub-network/            # VNet, subnets, NSGs, Firewall Standard (+ PIP)
-    private-dns/            # Private DNS zones + VNet links
-    log-analytics/          # LAW + retention
-    diagnostics/            # Subscription + resource diagnostics → LAW
-    policy/                 # (Start) Allowed locations – extend with tags/diag/public IP
-    rbac/                   # Group-based role assignments
-    budget/                 # Subscription budget
-  envs/
-    prod/
-      main.bicep           # Subscription-scope orchestration
-      parameters.prod.jsonc
-scripts/
-  entra/
-    1-Setup-RbacGroups.ps1  # Create groups and assign Azure roles at RG scope
-    2-Setup-LabUsers.ps1    # Create lab users (break-glass, student admin/test) and write creds file
-Landing Zone (Hub-Only, Minimal).md
-plan.md
+1_Hub/                              # Hub landing zone infrastructure
+  deploy.ps1                        # Main deployment script for hub
+  verify.ps1                        # Post-deployment verification
+  infra/
+    modules/
+      rg/                           # Resource groups (sub scope)
+      hub-network/                  # VNet, subnets, NSGs, Firewall Standard (+ PIP)
+      private-dns/                  # Private DNS zones + VNet links
+      log-analytics/                # LAW + retention
+      diagnostics/                  # Subscription + resource diagnostics → LAW
+      policy/                       # Allowed locations policy
+      rbac/                         # Group-based role assignments
+      budget/                       # Subscription budget
+    envs/
+      prod/
+        main.bicep                  # Subscription-scope orchestration
+        parameters.prod.jsonc
+  scripts/
+    entra/
+      1-Setup-RbacGroups.ps1        # Create groups and assign Azure roles at RG scope
+      2-Setup-LabUsers.ps1          # Create lab users and write creds file
+  Landing Zone (Hub-Only, Minimal).md
+  plan.md
+
+2_SubscriptionConfigure/            # Subscription and student RBAC configuration
+  1_SubscriptionConfigure.ps1       # Main subscription setup script
+  2_ScopeTags.ps1                   # Intune scope tag configuration
+  3_AdministrativeUnits.ps1         # Administrative units setup
+  4_IntuneCustomRole.ps1            # Custom Intune role creation
+  Configure-StudentRBAC.ps1         # Per-student RBAC configuration
+  Set-SubscriptionQuotas.ps1        # Subscription quota management
+  Get-SubscriptionQuotas.ps1        # View quota usage
+
+3_Student-Deploy/                   # Student provisioning scripts
+  New-W365Students.ps1              # Create student accounts and W365 setup
+  Set-CloudPCSnapshot.ps1           # Cloud PC snapshot management
+
+4_W365/                             # Windows 365 spoke network deployment
+  deploy.ps1                        # Spoke network deployment script
+  Check-W365Permissions.ps1         # Verify W365 service principal permissions
+  Set-W365Permissions.ps1           # Configure W365 permissions
+  infra/
+    modules/
+      rg/                           # Resource group module
+      spoke-network/                # Spoke VNet, subnets, NSGs, peering
+      w365-permissions/             # W365 permission assignments
+    envs/
+      prod/
+        main.bicep                  # Spoke orchestration
+        parameters.prod.json
 ```
 
 ---
@@ -64,14 +94,14 @@ plan.md
 
 ## Configure Parameters
 
-Edit `infra/envs/prod/parameters.prod.jsonc`:
+Edit `1_Hub/infra/envs/prod/parameters.prod.jsonc`:
 - `location`: e.g., `canada-central`.
 - `allowedLocations`: e.g., `["canada-central", "canada-east"]`.
 - `tags`: `env`, `owner`, `costCenter`, `dataSensitivity` (required by policy later).
 - `networkAdminsGroupObjectId`, `opsGroupObjectId`: set to Entra group object IDs (from the groups you create). If left blank, RBAC assignments will be skipped.
 - Optional: budgets and other parameters if you extend modules.
 
-The Orchestrator `infra/envs/prod/main.bicep` enables Firewall Standard by default and sets a 30‑day LAW retention.
+The Orchestrator `1_Hub/infra/envs/prod/main.bicep` enables Firewall Standard by default and sets a 30‑day LAW retention.
 
 ---
 
@@ -87,15 +117,15 @@ az account set --subscription "<subscriptionNameOrId>"
 az deployment sub what-if `
   --name hub-minimal-whatif `
   --location canada-central `
-  --template-file infra/envs/prod/main.bicep `
-  --parameters @infra/envs/prod/parameters.prod.jsonc
+  --template-file 1_Hub/infra/envs/prod/main.bicep `
+  --parameters @1_Hub/infra/envs/prod/parameters.prod.jsonc
 
 # Deploy
 az deployment sub create `
   --name hub-minimal-deploy `
   --location canada-central `
-  --template-file infra/envs/prod/main.bicep `
-  --parameters @infra/envs/prod/parameters.prod.jsonc
+  --template-file 1_Hub/infra/envs/prod/main.bicep `
+  --parameters @1_Hub/infra/envs/prod/parameters.prod.jsonc
 ```
 
 ---
@@ -171,11 +201,11 @@ Per `Landing Zone (Hub-Only, Minimal).md` and `plan.md`:
 
 ## Customization
 
-- Addressing: change `vnetAddressSpace`, `mgmtSubnetPrefix`, `privEndpointsSubnetPrefix` in `infra/envs/prod/main.bicep`.
+- Addressing: change `vnetAddressSpace`, `mgmtSubnetPrefix`, `privEndpointsSubnetPrefix` in `1_Hub/infra/envs/prod/main.bicep`.
 - Firewall: toggle `enableFirewall`, adjust `firewallSubnetPrefix`; add rules via Firewall Policy (future module).
-- Private DNS: extend the zones list in `infra/modules/private-dns/main.bicep` or pass via parameters.
-- Policies: extend `infra/modules/policy/main.bicep` to enforce required tags, required diagnostics to LAW, and audit/deny public IPs.
-- Diagnostics: add resource-level diagnostics wiring in `infra/modules/diagnostics/resources.bicep`.
+- Private DNS: extend the zones list in `1_Hub/infra/modules/private-dns/main.bicep` or pass via parameters.
+- Policies: extend `1_Hub/infra/modules/policy/main.bicep` to enforce required tags, required diagnostics to LAW, and audit/deny public IPs.
+- Diagnostics: add resource-level diagnostics wiring in `1_Hub/infra/modules/diagnostics/resources.bicep`.
 
 ---
 

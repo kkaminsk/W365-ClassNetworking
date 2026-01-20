@@ -5,8 +5,8 @@ This folder contains Bicep infrastructure-as-code for deploying a Windows 365 sp
 ## 🚀 Quick Start
 
 ```powershell
-# Navigate to W365 folder
-cd W365
+# Navigate to 4_W365 folder (from repo root)
+cd 4_W365
 
 # Deploy for student 1 (uses 192.168.1.0/24)
 .\deploy.ps1 -StudentNumber 1
@@ -128,14 +128,18 @@ To connect to hub network, set the hub VNet ID:
 ## 📁 Folder Structure
 
 ```
-W365/
+4_W365/
 ├── deploy.ps1                    # Deployment script
 ├── Deployps1-Readme.md           # Full documentation
 ├── README.md                     # This file
+├── Check-W365Permissions.ps1     # Verify W365 service permissions
+├── Set-W365Permissions.ps1       # Configure W365 permissions
+├── Setup-MinimumPermissions.ps1  # Automated security setup
 └── infra/
     ├── modules/
     │   ├── rg/                   # Resource group module
-    │   └── spoke-network/        # VNet and subnets module
+    │   ├── spoke-network/        # VNet and subnets module
+    │   └── w365-permissions/     # W365 permission module
     └── envs/
         └── prod/
             ├── main.bicep        # Main template
